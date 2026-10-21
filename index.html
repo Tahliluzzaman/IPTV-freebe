@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6D1D36">
+<title>আইপিটিভি প্লেয়ার</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F2EA;--card:#FFFFFF;--wine:#6D1D36;--gold:#D6A85F;--ink:#2B2527;--mute:#2B252799;--line:#2B25271f;--r:14px;--sh:0 6px 22px #2B25271a}
+[data-t=dark]{--bg:#2B2527;--card:#362f32;--ink:#F7F2EA;--mute:#F7F2EA99;--line:#F7F2EA1f;--sh:0 6px 22px #0006}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Hind Siliguri",system-ui,sans-serif;transition:background .3s,color .3s}
+header{background:var(--wine);color:#F7F2EA;display:flex;align-items:center;gap:12px;padding:12px 18px;position:sticky;top:0;z-index:20}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--gold);color:var(--wine);display:grid;place-items:center;font-weight:700}
+header h1{margin:0;font-size:19px;font-weight:600;flex:1}
+.ib{background:#ffffff1c;border:0;color:inherit;border-radius:10px;padding:8px 12px;cursor:pointer;font:inherit}
+.ib:hover{background:#ffffff33}
+.app{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(330px,1fr);gap:18px;padding:18px;max-width:1500px;margin:auto}
+.app.theater{grid-template-columns:1fr}
+.app.theater .panel{height:60vh}
+.stage{min-width:0}
+.screen{background:var(--ink);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);position:relative;border:2px solid var(--gold)}
+[data-t=dark] .screen{background:#000}
+video{display:block;width:100%;aspect-ratio:16/9;background:#000;max-height:76vh}
+.ov{position:absolute;inset:0;display:none;place-items:center;text-align:center;color:#F7F2EA;background:#2B2527cc;padding:20px;font-size:15px}
+.ov.on{display:grid}
+.spin{width:38px;height:38px;border:4px solid #F7F2EA33;border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.info{display:flex;align-items:center;gap:12px;margin:14px 2px 10px}
+.info img,.info .ph{width:46px;height:46px;border-radius:12px;background:var(--card);object-fit:contain;padding:4px;box-shadow:var(--sh)}
+.info h2{margin:0;font-size:20px;font-weight:600;line-height:1.2}
+.info small{color:var(--mute)}
+.live{margin-left:auto;background:var(--wine);color:#F7F2EA;font-size:12px;padding:3px 10px;border-radius:20px;display:none}
+.live.on{display:block}
+.bar{display:flex;flex-wrap:wrap;gap:8px}
+.btn,.bar select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 13px;font:inherit;cursor:pointer;transition:.18s}
+.btn:hover,.bar select:hover{border-color:var(--gold);transform:translateY(-1px)}
+.btn.pri{background:var(--wine);color:#F7F2EA;border-color:var(--wine)}
+.btn.on{background:var(--gold);color:#2B2527;border-color:var(--gold)}
+.msg{margin:12px 2px 0;color:var(--mute);font-size:13px;min-height:20px}
+.msg.err{color:#b3261e}[data-t=dark] .msg.err{color:#ff8a80}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);display:flex;flex-direction:column;height:calc(100vh - 100px);position:sticky;top:78px;overflow:hidden}
+.tools{padding:14px;display:grid;gap:10px;border-bottom:1px solid var(--line)}
+.tools input,.tools select{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit}
+.tools input:focus,.tools select:focus,.btn:focus-visible,.ib:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);padding:7px;border-radius:8px;font:inherit;cursor:pointer;transition:.2s}
+.tabs button.on{background:var(--wine);color:#F7F2EA}
+.list{overflow:auto;flex:1;padding:10px;display:grid;gap:8px;align-content:start}
+.list.grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
+.ch{display:flex;align-items:center;gap:11px;padding:9px;border-radius:12px;cursor:pointer;border:1px solid transparent;position:relative;transition:.18s;background:var(--bg)}
+.ch:hover{border-color:var(--gold);transform:translateY(-1px)}
+.ch.on{border-color:var(--wine);box-shadow:inset 4px 0 var(--wine)}
+.ch img,.ph{width:42px;height:42px;object-fit:contain;background:#fff;border-radius:9px;flex:none;padding:3px}
+.ph{display:grid;place-items:center;color:var(--wine);font-size:12px;font-weight:700;background:#D6A85F44}
+.t{flex:1;min-width:0}.n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}.g{color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.star{background:none;border:0;font-size:19px;color:var(--mute);cursor:pointer;padding:2px 6px}.star.f{color:var(--gold)}
+.grid .ch{flex-direction:column;text-align:center;padding:12px 8px}
+.grid .ch img,.grid .ph{width:56px;height:56px}
+.grid .t{width:100%}
+.grid .star{position:absolute;top:2px;right:2px;font-size:16px}
+.more{justify-self:center;grid-column:1/-1}
+.empty{grid-column:1/-1;text-align:center;color:var(--mute);padding:30px 10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:30px;opacity:0;pointer-events:none;transition:.3s;z-index:50}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:860px){
+ .app{grid-template-columns:1fr;padding:0 0 18px;gap:0}
+ .stage{position:sticky;top:60px;z-index:10;background:var(--bg);padding:10px 12px 4px}
+ .info h2{font-size:17px}.info{margin:10px 0 8px}
+ .panel{position:static;height:auto;min-height:60vh;margin:10px 12px 0}
+ .msg{display:none}
+ video{max-height:40vh}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:2s!important}}
+</style>
+</head>
+<body data-t="light">
+<header>
+  <div class="logo">TV</div><h1>আইপিটিভি প্লেয়ার</h1>
+  <button class="ib" id="themeBtn" aria-label="থিম বদলান">🌙</button>
+</header>
+
+<div class="app" id="app">
+  <section class="stage">
+    <div class="screen">
+      <video id="v" controls playsinline></video>
+      <div class="ov" id="ov"><div><div class="spin" id="spin"></div><div id="ovt"></div></div></div>
+    </div>
+    <div class="info">
+      <div class="ph" id="cLogo">TV</div>
+      <div><h2 id="title">একটি চ্যানেল বেছে নিন</h2><small id="sub">তালিকা থেকে চ্যানেলে ট্যাপ করুন</small></div>
+      <span class="live" id="live">● লাইভ</span>
+    </div>
+    <div class="bar">
+      <button class="btn" id="prev">⏮ আগের</button>
+      <button class="btn pri" id="next">পরের ⏭</button>
+      <select id="qual" title="কোয়ালিটি"><option value="-1">অটো কোয়ালিটি</option></select>
+      <button class="btn" id="fav">☆ ফেভারিট</button>
+      <button class="btn" id="pip">PiP</button>
+      <button class="btn" id="theater">থিয়েটার</button>
+      <button class="btn" id="retry">↻ রিলোড</button>
+      <button class="btn" id="copy">লিংক কপি</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </section>
+
+  <aside class="panel">
+    <div class="tools">
+      <select id="src">
+        <option value="https://iptv-org.github.io/iptv/countries/bd.m3u">বাংলাদেশ</option>
+        <option value="https://iptv-org.github.io/iptv/index.m3u">সব চ্যানেল (বড় ফাইল)</option>
+        <option value="https://iptv-org.github.io/iptv/countries/in.m3u">ভারত</option>
+        <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">স্পোর্টস</option>
+        <option value="https://iptv-org.github.io/iptv/categories/news.m3u">নিউজ</option>
+        <option value="https://iptv-org.github.io/iptv/categories/movies.m3u">মুভি</option>
+        <option value="https://iptv-org.github.io/iptv/categories/kids.m3u">কিডস</option>
+        <option value="https://iptv-org.github.io/iptv/categories/music.m3u">মিউজিক</option>
+        <option value="custom">নিজের লিংক…</option>
+      </select>
+      <input id="custom" placeholder="m3u লিংক বসিয়ে Enter চাপুন" hidden>
+      <input id="q" type="search" placeholder="🔍 চ্যানেল খুঁজুন">
+      <div class="row">
+        <select id="grp"><option value="">সব ক্যাটাগরি</option></select>
+        <button class="btn" id="view">▦ গ্রিড</button>
+      </div>
+      <div class="tabs"><button data-tab="all" class="on">সব</button><button data-tab="fav">ফেভারিট</button><button data-tab="rec">সাম্প্রতিক</button></div>
+    </div>
+    <div class="list" id="list"></div>
+  </aside>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const v=$('v'),list=$('list');
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,x){try{localStorage.setItem(k,JSON.stringify(x))}catch(e){}}};
+let all=[],view=[],shown=0,hls=null,cur=null,tab='all',PAGE=80,retried=false;
+let favs=store.get('favs',[]),recent=store.get('recent',[]),grid=store.get('grid',false);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)}
+function setMsg(t,err){const m=$('msg');m.textContent=t;m.className='msg'+(err?' err':'')}
+function overlay(t,spin=true){$('ov').classList.toggle('on',!!t);$('ovt').textContent=t||'';$('spin').style.display=spin?'block':'none'}
+
+/* theme */
+function theme(t){document.body.dataset.t=t;$('themeBtn').textContent=t==='dark'?'☀️':'🌙';store.set('theme',t)}
+theme(store.get('theme','light'));
+$('themeBtn').onclick=()=>theme(document.body.dataset.t==='dark'?'light':'dark');
+
+/* playlist */
+function parse(text){
+  const out=[];let meta=null;
+  for(const l of text.split(/\r?\n/)){
+    if(l.startsWith('#EXTINF')){
+      const a=k=>(l.match(new RegExp(k+'="([^"]*)"'))||[])[1]||'';
+      meta={name:l.slice(l.lastIndexOf(',')+1).trim()||'Unnamed',logo:a('tvg-logo'),group:a('group-title')||'অন্যান্য'};
+    }else if(meta&&/^https?:/.test(l.trim())){meta.url=l.trim();out.push(meta);meta=null}
+  }
+  return out;
+}
+async function load(url){
+  setMsg('প্লেলিস্ট লোড হচ্ছে…');list.innerHTML='<div class="empty"><div class="spin" style="border-top-color:var(--wine)"></div>লোড হচ্ছে…</div>';
+  try{
+    const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),30000);
+    const r=await fetch(url,{signal:ac.signal});clearTimeout(tm);if(!r.ok)throw new Error(r.status);
+    all=parse(await r.text());store.set('src',url);
+    const gs=[...new Set(all.flatMap(c=>c.group.split(';')))].filter(Boolean).sort();
+    $('grp').innerHTML='<option value="">সব ক্যাটাগরি</option>'+gs.map(g=>`<option>${esc(g)}</option>`).join('');
+    setMsg(all.length+'টি চ্যানেল। সব চ্যানেল চলবে না, না চললে অন্যটি চেষ্টা করুন।');
+    filter();
+  }catch(e){
+    list.innerHTML='';setMsg('প্লেলিস্ট লোড হয়নি ('+(e.name==='AbortError'?'সময় শেষ':e.message)+')। ছোট প্লেলিস্ট বেছে নিন।',true);
+    list.innerHTML='<div class="empty">লোড করা যায়নি</div>';
+  }
+}
+
+/* list */
+function filter(){
+  const q=$('q').value.trim().toLowerCase(),g=$('grp').value;
+  let src=all;
+  if(tab==='fav')src=all.filter(c=>favs.includes(c.url));
+  if(tab==='rec')src=recent.map(u=>all.find(c=>c.url===u)).filter(Boolean);
+  view=src.filter(c=>(!q||c.name.toLowerCase().includes(q))&&(!g||c.group.split(';').includes(g)));
+  list.className='list'+(grid?' grid':'');list.innerHTML='';shown=0;render();list.scrollTop=0;
+}
+function render(){
+  const end=Math.min(shown+PAGE,view.length);
+  list.querySelector('.more')?.remove();
+  let h='';
+  for(let i=shown;i<end;i++){
+    const c=view[i],f=favs.includes(c.url);
+    h+=`<div class="ch${cur===c.url?' on':''}" data-i="${i}">`+
+    (c.logo?`<img src="${esc(c.logo)}" loading="lazy" alt="" onerror="this.outerHTML='<div class=ph>TV</div>'">`:'<div class="ph">TV</div>')+
+    `<div class="t"><div class="n">${esc(c.name)}</div><div class="g">${esc(c.group)}</div></div>`+
+    `<button class="star${f?' f':''}" data-s="${i}" aria-label="ফেভারিট">${f?'★':'☆'}</button></div>`;
+  }
+  list.insertAdjacentHTML('beforeend',h);shown=end;
+  if(!view.length)list.innerHTML='<div class="empty">'+(tab==='fav'?'কোনো ফেভারিট নেই। ☆ চেপে যোগ করুন।':tab==='rec'?'এখনও কিছু দেখা হয়নি।':'কিছু পাওয়া যায়নি।')+'</div>';
+  else if(shown<view.length)list.insertAdjacentHTML('beforeend',`<button class="btn more">আরও দেখুন (${view.length-shown})</button>`);
+}
+list.onclick=e=>{
+  if(e.target.classList.contains('more'))return render();
+  const s=e.target.closest('[data-s]');
+  if(s){toggleFav(view[+s.dataset.s]);return}
+  const row=e.target.closest('.ch');if(row)play(view[+row.dataset.i]);
+};
+function toggleFav(c){
+  if(!c)return;const i=favs.indexOf(c.url);
+  i>=0?favs.splice(i,1):favs.push(c.url);store.set('favs',favs);
+  toast(i>=0?'ফেভারিট থেকে সরানো হয়েছে':'ফেভারিটে যোগ হয়েছে');
+  if(tab==='fav')filter();else{document.querySelectorAll('.star').forEach(b=>{const x=view[+b.dataset.s];if(x){const f=favs.includes(x.url);b.classList.toggle('f',f);b.textContent=f?'★':'☆'}})}
+  favBtn();
+}
+function favBtn(){const f=cur&&favs.includes(cur);$('fav').textContent=(f?'★':'☆')+' ফেভারিট';$('fav').classList.toggle('on',!!f)}
+
+/* player */
+function play(c){
+  if(!c)return;cur=c.url;retried=false;store.set('last',c.url);
+  recent=[c.url,...recent.filter(u=>u!==c.url)].slice(0,30);store.set('recent',recent);
+  $('title').textContent=c.name;$('sub').textContent=c.group;
+  $('cLogo').outerHTML=c.logo?`<img id="cLogo" src="${esc(c.logo)}" alt="" onerror="this.outerHTML='<div class=ph id=cLogo>TV</div>'">`:'<div class="ph" id="cLogo">TV</div>';
+  document.querySelectorAll('.ch.on').forEach(x=>x.classList.remove('on'));
+  list.querySelector(`[data-i="${view.indexOf(c)}"]`)?.classList.add('on');
+  favBtn();start(c.url);
+  if(matchMedia('(max-width:860px)').matches)scrollTo({top:0,behavior:'smooth'});
+}
+function start(url){
+  overlay('চালু হচ্ছে…');$('live').classList.remove('on');
+  if(hls){hls.destroy();hls=null}
+  $('qual').innerHTML='<option value="-1">অটো কোয়ালিটি</option>';
+  const fail=()=>{
+    if(!retried){retried=true;overlay('আবার চেষ্টা করা হচ্ছে…');return setTimeout(()=>start(url),1200)}
+    overlay('এই চ্যানেলটি চলছে না (স্ট্রিম বন্ধ, CORS বা HTTP ব্লক)। "পরের" চেপে অন্যটি দেখুন।',false);
+  };
+  const ok=()=>{overlay('');$('live').classList.add('on')};
+  v.onerror=fail;v.onplaying=ok;
+  if(/m3u8/.test(url)){
+    if(window.Hls&&Hls.isSupported()){
+      hls=new Hls({maxBufferLength:20,enableWorker:true});hls.loadSource(url);hls.attachMedia(v);
+      hls.on(Hls.Events.MANIFEST_PARSED,(_,d)=>{
+        d.levels.forEach((l,i)=>$('qual').insertAdjacentHTML('beforeend',`<option value="${i}">${l.height?l.height+'p':Math.round(l.bitrate/1000)+'k'}</option>`));
+        v.play().catch(()=>{});
+      });
+      hls.on(Hls.Events.ERROR,(_,d)=>{
+        if(!d.fatal)return;
+        if(d.type===Hls.ErrorTypes.MEDIA_ERROR){hls.recoverMediaError()}else fail();
+      });
+    }else if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=url;v.play().catch(()=>{})}
+    else fail();
+  }else{v.src=url;v.play().catch(()=>{})}
+}
+function step(d){
+  if(!view.length)return;
+  let i=view.findIndex(c=>c.url===cur);i=i<0?(d>0?0:view.length-1):(i+d+view.length)%view.length;
+  if(i>=shown){shown=Math.min(i+1,view.length)}
+  play(view[i]);list.querySelector('.on')?.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+$('next').onclick=()=>step(1);$('prev').onclick=()=>step(-1);
+$('qual').onchange=e=>{if(hls)hls.currentLevel=+e.target.value};
+$('fav').onclick=()=>toggleFav(all.find(c=>c.url===cur));
+$('retry').onclick=()=>{if(cur){retried=false;start(cur)}};
+$('theater').onclick=e=>{$('app').classList.toggle('theater');e.target.classList.toggle('on')};
+$('pip').onclick=async()=>{try{document.pictureInPictureElement?await document.exitPictureInPicture():await v.requestPictureInPicture()}catch(e){toast('এই ব্রাউজারে PiP সাপোর্ট নেই')}};
+$('copy').onclick=async()=>{if(!cur)return;try{await navigator.clipboard.writeText(cur);toast('স্ট্রিম লিংক কপি হয়েছে')}catch(e){toast('কপি করা যায়নি')}};
+
+/* controls */
+$('q').oninput=filter;$('grp').onchange=filter;
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));filter()});
+function viewBtn(){$('view').textContent=grid?'☰ লিস্ট':'▦ গ্রিড'}
+$('view').onclick=()=>{grid=!grid;store.set('grid',grid);viewBtn();filter()};viewBtn();
+$('src').onchange=e=>{const c=e.target.value==='custom';$('custom').hidden=!c;if(!c)load(e.target.value)};
+$('custom').onkeydown=e=>{if(e.key==='Enter'&&e.target.value.trim())load(e.target.value.trim())};
+document.addEventListener('keydown',e=>{
+  if(/INPUT|SELECT/.test(document.activeElement.tagName))return;
+  if(e.key==='ArrowDown'||e.key==='n')step(1);
+  else if(e.key==='ArrowUp'||e.key==='p')step(-1);
+  else if(e.key==='f')v.requestFullscreen?.();
+  else if(e.key==='m')v.muted=!v.muted;
+  else if(e.key===' '){e.preventDefault();v.paused?v.play():v.pause()}
+});
+
+/* start */
+const saved=store.get('src','');
+if(saved&&[...$('src').options].some(o=>o.value===saved))$('src').value=saved;
+load($('src').value).then(()=>{const l=store.get('last','');const c=all.find(x=>x.url===l);if(c){cur=c.url;$('title').textContent=c.name;$('sub').textContent='আগেরবার দেখা চ্যানেল, চালাতে ট্যাপ করুন';favBtn()}});
+</script>
+</body>
+</html>
